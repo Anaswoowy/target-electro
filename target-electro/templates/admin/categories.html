@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+{% block title %}الفئات والأنواع{% endblock %}
+{% block admin_content %}
+<div class="admin-topbar"><h1 class="section-title">الفئات والأنواع</h1></div>
+
+<div class="admin-panel">
+  <h3 style="margin-top:0;">إضافة فئة جديدة</h3>
+  <form method="post" class="form-grid">
+    <input type="hidden" name="action" value="add_category">
+    <div class="form-field"><label>اسم الفئة (عربي)</label><input type="text" name="name_ar" required></div>
+    <div class="form-field"><label>المعرف (slug، إنجليزي)</label><input type="text" name="slug" placeholder="e.g. gaming" required></div>
+    <div class="form-field" style="align-self:end;"><button class="btn btn-red" type="submit">إضافة</button></div>
+  </form>
+</div>
+
+{% for c in categories %}
+<div class="admin-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3 style="margin:0;">{{ c.name_ar }} <span class="muted" style="font-size:12px;">/{{ c.slug }}</span></h3>
+    <form method="post">
+      <input type="hidden" name="action" value="toggle_category">
+      <input type="hidden" name="category_id" value="{{ c.id }}">
+      <button class="btn btn-sm {{ 'btn-outline' if c.enabled else 'btn-danger' }}" type="submit">
+        {{ 'مفعّلة — إخفاء' if c.enabled else 'معطّلة — تفعيل' }}
+      </button>
+    </form>
+  </div>
+
+  <table class="admin-table" style="margin-top:12px;">
+    <thead><tr><th>نوع المنتج</th><th>المعرف</th></tr></thead>
+    <tbody>
+      {% for t in c.product_types %}
+        <tr><td>{{ t.name_ar }}</td><td>{{ t.slug }}</td></tr>
+      {% else %}
+        <tr><td colspan="2" class="muted">لا توجد أنواع منتجات لهذه الفئة</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <form method="post" style="margin-top:10px;display:flex;gap:8px;align-items:end;">
+    <input type="hidden" name="action" value="add_type">
+    <input type="hidden" name="category_id" value="{{ c.id }}">
+    <div class="form-field" style="margin-bottom:0;">
+      <label>معرف النوع (من الأنواع المدعومة في النظام)</label>
+      <select name="type_slug">
+        {% for slug in known_type_slugs %}<option value="{{ slug }}">{{ slug }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="form-field" style="margin-bottom:0;">
+      <label>اسم النوع (عربي)</label>
+      <input type="text" name="type_name" required>
+    </div>
+    <button class="btn btn-sm btn-outline" type="submit">إضافة نوع</button>
+  </form>
+</div>
+{% else %}
+<div class="empty-state">لا توجد فئات مضافة</div>
+{% endfor %}
+
+<p class="muted" style="font-size:12px;">
+  ملاحظة: قوالب المواصفات (RAM، بطارية، إلخ) لهذا النموذج الأولي معرّفة لثلاثة أنواع فقط
+  (هاتف ذكي، سماعات TWS، لابتوب) في app.py ضمن PRODUCT_TYPE_FIELDS. أضف قالب مواصفات مشابه
+  هناك عند إنشاء نوع منتج جديد.
+</p>
+{% endblock %}

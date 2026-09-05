@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Target Electro — الرئيسية{% endblock %}
+{% block content %}
+
+<section class="hero hero-premium">
+  <div class="container hero-inner hero-layout">
+    <div class="hero-copy">
+      <span class="eyebrow">TARGET ELECTRO</span>
+      <h1>إلكترونياتك، بمكان واحد.</h1>
+      <p>تصفح المنتجات التي يضيفها المتجر، واستخدم البحث أو Target AI للوصول للمنتج المناسب.</p>
+      <div class="hero-actions-row">
+        <a class="btn" href="{{ url_for('products') }}">تصفح المنتجات</a>
+        <button class="btn btn-outline hero-ai-cta" type="button" data-ai-open>اسأل Target AI</button>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="hero-art-ring"></div>
+      <div class="hero-device phone-art">
+        <div class="phone-speaker"></div>
+        <div class="phone-screen"></div>
+      </div>
+      <div class="hero-device tablet-art">
+        <div class="tablet-screen"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+
+  <section class="section section-categories">
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">تصفح سريع</span>
+        <h2 class="section-title">الفئات</h2>
+      </div>
+    </div>
+    {% if categories %}
+      <div class="category-grid">
+        {% for c in categories %}
+          <a class="category-card category-{{ c.slug }}" href="{{ url_for('products', category=c.slug) }}">
+            <div class="category-visual">
+              <img src="{{ url_for('static', filename='img/categories/' ~ (c.slug if c.slug in ['mobile','audio','computers','smart-devices','gaming','pc-accessories','cameras','displays','accessories','other'] else 'other') ~ '.svg') }}" alt="" loading="lazy">
+            </div>
+            <div class="category-copy">
+              <span>{{ c.name_ar }}</span>
+              <strong>استكشف الفئة <span aria-hidden="true">←</span></strong>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">لا توجد فئات مضافة</div>
+    {% endif %}
+  </section>
+
+  {% if featured %}
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">اختيار المتجر</span>
+        <h2 class="section-title">منتجات مميزة</h2>
+      </div>
+      <a class="section-link" href="{{ url_for('products') }}">عرض الكل</a>
+    </div>
+    <div class="grid">
+      {% for p in featured %}{% include "_product_card.html" %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if new_arrivals %}
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">الأحدث</span>
+        <h2 class="section-title">وصل حديثاً</h2>
+      </div>
+    </div>
+    <div class="grid">
+      {% for p in new_arrivals %}{% include "_product_card.html" %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if offers %}
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">المتاح حالياً</span>
+        <h2 class="section-title">عروض</h2>
+      </div>
+    </div>
+    <div class="grid">
+      {% for p in offers %}{% include "_product_card.html" %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}

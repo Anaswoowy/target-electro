@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block title %}الطلبات{% endblock %}
+{% block admin_content %}
+<div class="admin-topbar"><h1 class="section-title">الطلبات</h1></div>
+
+<div class="admin-panel" style="padding:12px 20px;">
+  <form method="get" style="display:flex;gap:8px;align-items:center;">
+    <label class="muted" style="font-size:13px;">تصفية حسب الحالة:</label>
+    <select name="status" onchange="this.form.submit()">
+      <option value="">الكل</option>
+      {% for s in ORDER_STATUSES %}
+        <option value="{{ s }}" {{ 'selected' if status_filter==s }}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+{% if orders %}
+<table class="admin-table">
+  <thead><tr><th>#</th><th>العميل</th><th>الهاتف</th><th>الحالة</th><th>الإجمالي</th><th>التاريخ</th><th></th></tr></thead>
+  <tbody>
+    {% for o in orders %}
+    <tr>
+      <td>{{ o.id }}</td><td>{{ o.customer_name }}</td><td>{{ o.phone }}</td>
+      <td>{{ o.status }}</td><td>{{ o.total|iqd }}</td>
+      <td>{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td><a href="{{ url_for('admin_order_detail', oid=o.id) }}" class="btn btn-sm btn-outline">عرض</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty-state">لا توجد طلبات بعد</div>
+{% endif %}
+{% endblock %}

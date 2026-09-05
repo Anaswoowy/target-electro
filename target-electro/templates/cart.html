@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}السلة — Target Electro{% endblock %}
+{% block content %}
+<div class="container section">
+  <h1 class="section-title" style="margin-bottom:20px;">السلة</h1>
+
+  {% if items %}
+    <table class="cart-table">
+      <thead>
+        <tr><th></th><th>المنتج</th><th>السعر</th><th>الكمية</th><th>المجموع</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>
+            {% if item.product.image_list %}
+              <img class="cart-thumb" src="{{ item.product.image_list[0] }}">
+            {% else %}
+              <div class="cart-thumb"></div>
+            {% endif %}
+          </td>
+          <td class="cart-item-name">
+            <a href="{{ url_for('product_detail', pid=item.product.id) }}">{{ item.product.name }}</a>
+          </td>
+          <td>{{ item.product.price|iqd }}</td>
+          <td>
+            <form method="post" action="{{ url_for('cart_update') }}" style="display:flex;gap:6px;">
+              <input type="hidden" name="product_id" value="{{ item.product.id }}">
+              <input type="number" name="qty" value="{{ item.qty }}" min="1" max="{{ item.product.stock }}" class="qty-input" onchange="this.form.submit()">
+            </form>
+          </td>
+          <td>{{ item.line_total|iqd }}</td>
+          <td>
+            <form method="post" action="{{ url_for('cart_remove') }}">
+              <input type="hidden" name="product_id" value="{{ item.product.id }}">
+              <button type="submit" class="btn btn-sm btn-danger">إزالة</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="cart-summary">
+      <p class="cart-total">الإجمالي: {{ total|iqd }}</p>
+      <a href="{{ url_for('checkout') }}" class="btn btn-red">إتمام الطلب</a>
+    </div>
+  {% else %}
+    <div class="empty-state">السلة فارغة</div>
+    <p style="text-align:center;margin-top:14px;"><a href="{{ url_for('products') }}" class="btn btn-outline">تصفح المنتجات</a></p>
+  {% endif %}
+</div>
+{% endblock %}

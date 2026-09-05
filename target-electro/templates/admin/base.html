@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}لوحة التحكم{% endblock %} — Target Electro</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="padding-bottom:0;">
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="logo-wrap">
+      <img src="{{ url_for('static', filename='img/logo-placeholder.svg') }}" style="height:26px;filter:invert(1);">
+    </div>
+    <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint=='admin_dashboard' }}">نظرة عامة</a>
+    <a href="{{ url_for('admin_products') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin_product') }}">المنتجات</a>
+    <a href="{{ url_for('admin_categories') }}" class="{{ 'active' if request.endpoint=='admin_categories' }}">الفئات والأنواع</a>
+    <a href="{{ url_for('admin_brands') }}" class="{{ 'active' if request.endpoint=='admin_brands' }}">العلامات التجارية</a>
+    <a href="{{ url_for('admin_orders') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin_order') }}">الطلبات</a>
+    <a href="{{ url_for('home') }}" target="_blank">عرض المتجر ↗</a>
+    <a href="{{ url_for('admin_logout') }}">تسجيل الخروج</a>
+  </aside>
+  <main class="admin-main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block admin_content %}{% endblock %}
+  </main>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

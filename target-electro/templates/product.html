@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ p.name }} — Target Electro{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="product-detail">
+    <div>
+      <div class="gallery-main">
+        {% if p.image_list %}
+          <img id="main-img" src="{{ p.image_list[0] }}" alt="{{ p.name }}">
+        {% else %}
+          <span class="no-image">لا توجد صورة</span>
+        {% endif %}
+      </div>
+      {% if p.image_list|length > 1 %}
+      <div class="gallery-thumbs">
+        {% for img in p.image_list %}
+          <img src="{{ img }}" onclick="document.getElementById('main-img').src=this.src">
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div>
+      {% if p.brand %}<div class="pd-brand">{{ p.brand.name }}{% if p.model %} · {{ p.model }}{% endif %}</div>{% endif %}
+      <h1 class="pd-title">{{ p.name }}</h1>
+
+      <div class="pd-price-row">
+        <span class="pd-price">{{ p.price|iqd }}</span>
+        {% if p.old_price and p.old_price > p.price %}
+          <span class="pd-old">{{ p.old_price|iqd }}</span>
+          <span class="discount-tag">-{{ p.discount_pct }}%</span>
+        {% endif %}
+      </div>
+
+      <div class="stock-row stock-{{ p.stock_status[1] }}">{{ p.stock_status[0] }}</div>
+
+      {% if p.stock > 0 %}
+      <form method="post" action="{{ url_for('cart_add') }}" class="pd-actions">
+        <input type="hidden" name="product_id" value="{{ p.id }}">
+        <input type="number" name="qty" value="1" min="1" max="{{ p.stock }}" class="qty-input">
+        <button type="submit" class="btn btn-red">أضف إلى السلة</button>
+      </form>
+      {% else %}
+      <div class="pd-actions">
+        <button class="btn" disabled style="opacity:.5;cursor:not-allowed;">غير متوفر حالياً</button>
+      </div>
+      {% endif %}
+
+      {% if display_specs %}
+      <h3>المواصفات</h3>
+      <table class="spec-table">
+        {% for label, value in display_specs %}
+          <tr><td>{{ label }}</td><td>{{ value }}</td></tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+
+      {% if p.description %}
+        <h3 style="margin-top:20px;">الوصف</h3>
+        <p class="pd-desc">{{ p.description }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-head"><h2 class="section-title">منتجات ذات صلة</h2></div>
+    {% if related %}
+      <div class="grid">
+        {% for rp in related %}{% set p = rp %}{% include "_product_card.html" %}{% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">لا توجد منتجات ذات صلة</div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

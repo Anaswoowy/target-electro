@@ -1,0 +1,134 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'تعديل منتج' if product else 'إضافة منتج' }}{% endblock %}
+{% block admin_content %}
+<div class="admin-topbar">
+  <h1 class="section-title">{{ 'تعديل منتج' if product else 'إضافة منتج' }}</h1>
+</div>
+
+<form method="post" id="product-form" class="admin-panel" enctype="multipart/form-data">
+
+  <h3 style="margin-top:0;">١. اختر الفئة والنوع</h3>
+  <div class="form-grid">
+    <div class="form-field">
+      <label>الفئة *</label>
+      <select name="category_id" id="category_id" required>
+        <option value="">اختر الفئة</option>
+        {% for c in categories %}
+          <option value="{{ c.id }}" {{ 'selected' if product and product.category_id==c.id }}>{{ c.name_ar }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-field">
+      <label>نوع المنتج *</label>
+      <select name="product_type_id" id="product_type_id" required
+        data-original="{{ product.product_type_id if product else '' }}">
+        <option value="">اختر النوع بعد الفئة</option>
+      </select>
+    </div>
+  </div>
+  <p class="muted" style="font-size:13px;">تغيير نوع المنتج بعد إدخال بيانات قد يؤدي إلى إزالة بعض المواصفات غير المتوافقة.</p>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+  <h3>٢. البيانات الأساسية</h3>
+  <div class="form-grid">
+    <div class="form-field"><label>اسم المنتج *</label><input type="text" name="name" required value="{{ product.name if product else '' }}"></div>
+    <div class="form-field">
+      <label>العلامة التجارية</label>
+      <select name="brand_id" id="brand_id">
+        <option value="">بدون علامة</option>
+        {% for b in brands %}
+          <option value="{{ b.id }}" data-logo="{{ b.logo or '' }}" {{ 'selected' if product and product.brand_id==b.id }}>{{ b.name }}</option>
+        {% endfor %}
+      </select>
+      <div id="brand-preview" class="brand-preview"></div>
+    </div>
+    <div class="form-field"><label>الموديل</label><input type="text" name="model" value="{{ product.model if product else '' }}"></div>
+    <div class="form-field"><label>السعر (د.ع) *</label><input type="number" name="price" required value="{{ product.price if product else '' }}"></div>
+    <div class="form-field"><label>السعر قبل الخصم</label><input type="number" name="old_price" value="{{ product.old_price if product and product.old_price else '' }}"></div>
+    <div class="form-field"><label>المخزون *</label><input type="number" name="stock" required value="{{ product.stock if product else 0 }}"></div>
+    <div class="form-field">
+      <label>صورة المنتج</label>
+      <input type="file" name="product_image" id="product_image" accept="image/png,image/jpeg,image/webp">
+      <div class="image-upload-preview">
+        {% if product and product.image_list %}<img id="product-preview" src="{{ product.image_list[0] }}" alt="معاينة المنتج">{% else %}<div id="product-preview-empty">لا توجد صورة بعد</div>{% endif %}
+      </div>
+      <input type="hidden" name="images" value="{{ product.images if product else '' }}">
+    </div>
+  </div>
+  <div class="form-field"><label>الوصف</label><textarea name="description">{{ product.description if product else '' }}</textarea></div>
+
+  <div style="display:flex;gap:20px;margin:14px 0;">
+    <label><input type="checkbox" name="visible" {{ 'checked' if not product or product.visible }}> ظاهر في المتجر</label>
+    <label><input type="checkbox" name="featured" {{ 'checked' if product and product.featured }}> مميز</label>
+    <label><input type="checkbox" name="new_arrival" {{ 'checked' if product and product.new_arrival }}> وصل حديثاً</label>
+    <label><input type="checkbox" name="is_offer" {{ 'checked' if product and product.is_offer }}> عرض</label>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+  <h3>٣. المواصفات الخاصة بالنوع</h3>
+  <div id="spec-fields" class="form-grid"></div>
+
+  <button type="submit" class="btn btn-red" style="margin-top:16px;">حفظ المنتج</button>
+</form>
+
+<script>
+  var TYPES_BY_CAT = {{ types_by_cat|tojson }};
+  var FIELDS = {{ PRODUCT_TYPE_FIELDS|tojson }};
+  var BRAND_CATEGORIES = {{ brand_category_map|tojson }};
+  var EXISTING_SPECS = {{ (product.spec_dict() if product else {})|tojson }};
+  var currentTypeId = {{ product.product_type_id if product else 'null' }};
+  var currentTypeSlug = {{ product.product_type.slug|tojson if product else 'null' }};
+
+  var categorySelect = document.getElementById('category_id');
+  var typeSelect = document.getElementById('product_type_id');
+  var specWrap = document.getElementById('spec-fields');
+  var brandSelect = document.getElementById('brand_id');
+  var brandPreview = document.getElementById('brand-preview');
+  var imageInput = document.getElementById('product_image');
+  function updateBrandPreview(){ var o=brandSelect.options[brandSelect.selectedIndex]; if(!o || !o.value){brandPreview.innerHTML='';return;} var logo=o.dataset.logo; brandPreview.innerHTML=logo ? '<img src="'+logo+'" alt=""><strong>'+o.textContent+'</strong>' : '<span class="brand-fallback">'+o.textContent+'</span>'; }
+  brandSelect.addEventListener('change', updateBrandPreview); updateBrandPreview();
+  if(imageInput){ imageInput.addEventListener('change', function(){ var f=this.files[0]; if(!f)return; var r=new FileReader(); r.onload=function(e){var old=document.getElementById('product-preview'); if(old) old.remove(); var empty=document.getElementById('product-preview-empty'); if(empty) empty.remove(); var im=document.createElement('img'); im.id='product-preview'; im.src=e.target.result; im.alt='معاينة المنتج'; document.querySelector('.image-upload-preview').appendChild(im); }; r.readAsDataURL(f); }); } 
+
+  function filterBrands(){ var cid=categorySelect.value; Array.from(brandSelect.options).forEach(function(o){ if(!o.value)return; var cats=BRAND_CATEGORIES[o.value]||[]; o.hidden=!!(cid && cats.length && cats.indexOf(Number(cid))===-1); }); if(brandSelect.selectedOptions[0] && brandSelect.selectedOptions[0].hidden) brandSelect.value=''; updateBrandPreview(); }
+
+  function populateTypes(selectedTypeId) {
+    var catId = categorySelect.value;
+    typeSelect.innerHTML = '<option value="">اختر النوع</option>';
+    if (!catId || !TYPES_BY_CAT[catId]) { renderSpecFields(null); return; }
+    TYPES_BY_CAT[catId].forEach(function (t) {
+      var opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.name;
+      opt.dataset.slug = t.slug;
+      if (String(t.id) === String(selectedTypeId)) opt.selected = true;
+      typeSelect.appendChild(opt);
+    });
+    var chosen = typeSelect.options[typeSelect.selectedIndex];
+    renderSpecFields(chosen ? chosen.dataset.slug : null);
+  }
+
+  function renderSpecFields(slug) {
+    specWrap.innerHTML = '';
+    if (!slug || !FIELDS[slug]) return;
+    FIELDS[slug].forEach(function (pair) {
+      var key = pair[0], label = pair[1];
+      var div = document.createElement('div');
+      div.className = 'form-field';
+      var existing = EXISTING_SPECS[key] || '';
+      div.innerHTML = '<label>' + label + '</label><input type="text" name="spec_' + key + '" value="' + existing.replace(/"/g, '&quot;') + '">';
+      specWrap.appendChild(div);
+    });
+  }
+
+  categorySelect.addEventListener('change', function () { filterBrands(); populateTypes(null); });
+  typeSelect.addEventListener('change', function () {
+    var chosen = typeSelect.options[typeSelect.selectedIndex];
+    renderSpecFields(chosen ? chosen.dataset.slug : null);
+  });
+
+  // initial load
+  filterBrands(); if (categorySelect.value) populateTypes(currentTypeId);
+</script>
+{% endblock %}

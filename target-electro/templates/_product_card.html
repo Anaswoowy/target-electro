@@ -1,0 +1,21 @@
+<a class="card-product" href="{{ url_for('product_detail', pid=p.id) }}">
+  <div class="img-wrap">
+    {% if p.image_list %}
+      <img src="{{ p.image_list[0] }}" alt="{{ p.name }}">
+    {% else %}
+      <span class="no-image">لا توجد صورة</span>
+    {% endif %}
+  </div>
+  <div class="card-body">
+    {% if p.brand %}<div class="card-brand">{{ p.brand.name }}</div>{% endif %}
+    <p class="card-name">{{ p.name }}</p>
+    <div class="price-row">
+      <span class="price">{{ p.price|iqd }}</span>
+      {% if p.old_price and p.old_price > p.price %}
+        <span class="old-price">{{ p.old_price|iqd }}</span>
+        <span class="discount-tag">-{{ p.discount_pct }}%</span>
+      {% endif %}
+    </div>
+    <div class="stock-row stock-{{ p.stock_status[1] }}">{{ p.stock_status[0] }}</div>
+  </div>
+</a>

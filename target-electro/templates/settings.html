@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}الإعدادات — Target Electro{% endblock %}
+{% block content %}
+<div class="container section" style="max-width:600px;">
+  <h1 class="section-title" style="margin-bottom:20px;">الإعدادات</h1>
+
+  <div class="admin-panel">
+    <h3 style="margin-top:0;">اللغة</h3>
+    <p class="muted">العربية (اللغة الافتراضية)</p>
+  </div>
+
+  <div class="admin-panel">
+    <h3 style="margin-top:0;">حول Target Electro</h3>
+    <p class="muted">معلومات المتجر لم تُضف بعد من قبل الإدارة.</p>
+  </div>
+
+  <div class="admin-panel">
+    <h3 style="margin-top:0;">موقع المتجر</h3>
+    <p class="muted">لم يتم تحديد الموقع بعد.</p>
+  </div>
+
+  <p style="text-align:center;margin-top:30px;">
+    <a href="{{ url_for('admin_login') }}" style="font-size:13px;color:var(--muted);">دخول الإدارة</a>
+  </p>
+</div>
+{% endblock %}

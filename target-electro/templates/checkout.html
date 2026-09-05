@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}إتمام الطلب — Target Electro{% endblock %}
+{% block content %}
+<div class="container section" style="max-width:720px;">
+  <h1 class="section-title" style="margin-bottom:20px;">إتمام الطلب</h1>
+
+  <div class="admin-panel">
+    <h3 style="margin-top:0;">ملخص الطلب</h3>
+    {% for item in items %}
+      <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;">
+        <span>{{ item.product.name }} × {{ item.qty }}</span>
+        <span>{{ item.line_total|iqd }}</span>
+      </div>
+    {% endfor %}
+    <hr style="border:none;border-top:1px solid var(--line);margin:10px 0;">
+    <div style="display:flex;justify-content:space-between;font-weight:800;">
+      <span>الإجمالي</span><span>{{ total|iqd }}</span>
+    </div>
+  </div>
+
+  <form method="post">
+    <div class="form-grid">
+      <div class="form-field"><label>الاسم *</label><input type="text" name="name" required></div>
+      <div class="form-field"><label>رقم الهاتف *</label><input type="tel" name="phone" required></div>
+      <div class="form-field"><label>المحافظة *</label><input type="text" name="governorate" required></div>
+      <div class="form-field"><label>المدينة</label><input type="text" name="city"></div>
+      <div class="form-field"><label>المنطقة</label><input type="text" name="area"></div>
+    </div>
+    <div class="form-field"><label>العنوان بالتفصيل *</label><textarea name="address" required></textarea></div>
+    <div class="form-field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
+
+    <div class="form-field">
+      <label>طريقة الدفع</label>
+      <input type="text" value="الدفع عند الاستلام" disabled style="background:var(--bg-soft);">
+    </div>
+
+    <button type="submit" class="btn btn-red btn-block">تأكيد الطلب</button>
+  </form>
+</div>
+{% endblock %}

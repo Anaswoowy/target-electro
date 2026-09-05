@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block title %}المنتجات{% endblock %}
+{% block admin_content %}
+<div class="admin-topbar">
+  <h1 class="section-title">المنتجات</h1>
+  <a href="{{ url_for('admin_product_new') }}" class="btn btn-red">+ إضافة منتج</a>
+</div>
+
+{% if products %}
+<table class="admin-table">
+  <thead>
+    <tr><th>الاسم</th><th>الفئة</th><th>السعر</th><th>المخزون</th><th>الحالة</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for p in products %}
+    <tr>
+      <td>
+        {{ p.name }}
+        {% if p.is_demo %}<span class="badge badge-demo">تجريبي</span>{% endif %}
+        {% if not p.visible %}<span class="badge badge-hidden">مخفي</span>{% endif %}
+      </td>
+      <td>{{ p.product_type.name_ar }}</td>
+      <td>{{ p.price|iqd }}</td>
+      <td>{{ p.stock }}</td>
+      <td class="stock-{{ p.stock_status[1] }}">{{ p.stock_status[0] }}</td>
+      <td style="display:flex;gap:6px;">
+        <a href="{{ url_for('admin_product_edit', pid=p.id) }}" class="btn btn-sm btn-outline">تعديل</a>
+        <form method="post" action="{{ url_for('admin_product_duplicate', pid=p.id) }}">
+          <button class="btn btn-sm btn-outline" type="submit">نسخ</button>
+        </form>
+        <form method="post" action="{{ url_for('admin_product_delete', pid=p.id) }}" onsubmit="return confirm('حذف هذا المنتج نهائياً؟');">
+          <button class="btn btn-sm btn-danger" type="submit">حذف</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty-state">لا توجد منتجات مضافة حالياً</div>
+{% endif %}
+{% endblock %}

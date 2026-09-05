@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% block title %}طلب #{{ order.id }}{% endblock %}
+{% block admin_content %}
+<div class="admin-topbar"><h1 class="section-title">طلب #{{ order.id }}</h1></div>
+
+<div class="admin-panel">
+  <h3 style="margin-top:0;">حالة الطلب</h3>
+  <form method="post" action="{{ url_for('admin_order_status', oid=order.id) }}" style="display:flex;gap:8px;">
+    <select name="status">
+      {% for s in ORDER_STATUSES %}
+        <option value="{{ s }}" {{ 'selected' if order.status==s }}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-red" type="submit">تحديث الحالة</button>
+  </form>
+  {% if order.status == 'ملغي' %}<p class="muted" style="font-size:12px;margin-top:8px;">تم إرجاع الكمية إلى المخزون عند الإلغاء.</p>{% endif %}
+</div>
+
+<div class="admin-panel">
+  <h3 style="margin-top:0;">بيانات العميل</h3>
+  <p>{{ order.customer_name }} — {{ order.phone }}</p>
+  <p>{{ order.governorate }}{% if order.city %}, {{ order.city }}{% endif %}{% if order.area %}, {{ order.area }}{% endif %}</p>
+  <p>{{ order.address }}</p>
+  {% if order.notes %}<p class="muted">ملاحظات: {{ order.notes }}</p>{% endif %}
+</div>
+
+<div class="admin-panel">
+  <h3 style="margin-top:0;">المنتجات المطلوبة</h3>
+  <table class="admin-table">
+    <thead><tr><th>المنتج</th><th>السعر وقت الطلب</th><th>الكمية</th><th>المجموع</th></tr></thead>
+    <tbody>
+      {% for item in order.items %}
+      <tr>
+        <td>{{ item.product_name }}</td>
+        <td>{{ item.price|iqd }}</td>
+        <td>{{ item.qty }}</td>
+        <td>{{ (item.price * item.qty)|iqd }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p style="text-align:left;font-weight:800;margin-top:10px;">الإجمالي: {{ order.total|iqd }}</p>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Target Electro{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="{{ url_for('home') }}" class="brand">
+      <!-- TODO: replace with the real Target Electro logo asset -->
+      <img src="{{ url_for('static', filename='img/logo-placeholder.svg') }}" alt="Target Electro" class="logo">
+    </a>
+
+    <nav class="main-nav">
+      <a href="{{ url_for('home') }}" class="{{ 'active' if request.endpoint=='home' }}">الرئيسية</a>
+      <a href="{{ url_for('products') }}" class="{{ 'active' if request.endpoint=='products' }}">البحث</a>
+      <button id="ai-toggle" class="nav-ai-link" type="button" title="Target AI" aria-label="Target AI">AI</button>
+      <a href="{{ url_for('settings') }}" class="{{ 'active' if request.endpoint=='settings' }}">الإعدادات</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="{{ url_for('cart_view') }}" class="cart-link">
+        السلة
+        {% set cart = session.get('cart', {}) %}
+        {% if cart %}<span class="cart-badge">{{ cart|length }}</span>{% endif %}
+      </a>
+    </div>
+  </div>
+</header>
+
+<div id="ai-panel" class="ai-panel">
+  <div class="ai-panel-head">
+    <span>Target AI</span>
+    <button id="ai-close" aria-label="إغلاق">✕</button>
+  </div>
+  <div class="ai-panel-body">
+    <p class="ai-hint">هلا بيك 👋 اسألني عن المنتجات المتوفرة، الأسعار، أو شنو يناسب ميزانيتك.</p>
+    <div id="ai-messages"><div class="ai-msg ai-msg-assistant"><strong>Target AI:</strong> هلا بيك 👋 شلون أگدر أساعدك؟</div></div>
+  </div>
+  <form id="ai-form" class="ai-panel-input">
+    <input type="text" id="ai-query" placeholder="اكتب طلبك هنا..." autocomplete="off">
+    <button type="submit">إرسال</button>
+  </form>
+</div>
+<div id="ai-overlay"></div>
+
+<main class="site-main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container flash-wrap">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <img src="{{ url_for('static', filename='img/logo-placeholder.svg') }}" alt="Target Electro" class="footer-logo">
+    <p class="footer-location">موقع المتجر: <span class="muted">لم يتم تحديد الموقع بعد — يضيفه المالك.</span></p>
+  </div>
+</footer>
+
+<nav class="mobile-nav">
+  <a href="{{ url_for('home') }}" class="{{ 'active' if request.endpoint=='home' }}">
+    <span>الرئيسية</span>
+  </a>
+  <a href="{{ url_for('products') }}" class="{{ 'active' if request.endpoint=='products' }}">
+    <span>البحث</span>
+  </a>
+  <button type="button" class="mobile-ai-btn" data-ai-open aria-label="Target AI">AI</button>
+  <a href="{{ url_for('cart_view') }}" class="{{ 'active' if request.endpoint=='cart_view' }}">
+    <span>السلة</span>
+    {% if session.get('cart') %}<span class="cart-badge-mobile">{{ session.get('cart')|length }}</span>{% endif %}
+  </a>
+  <a href="{{ url_for('settings') }}" class="{{ 'active' if request.endpoint=='settings' }}">
+    <span>الإعدادات</span>
+  </a>
+</nav>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

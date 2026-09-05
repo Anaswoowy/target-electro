@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40">
+  <text x="0" y="28" font-family="Cairo, Arial, sans-serif" font-size="24" font-weight="800" fill="#1a1a1a">TARGET</text>
+  <circle cx="120" cy="16" r="8" fill="none" stroke="#e2192c" stroke-width="3"/>
+  <circle cx="120" cy="16" r="2.5" fill="#e2192c"/>
+  <text x="0" y="38" font-family="Cairo, Arial, sans-serif" font-size="8" letter-spacing="2" fill="#e2192c">ELECTRO STORE</text>
+</svg>

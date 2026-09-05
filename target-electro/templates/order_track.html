@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}تتبع الطلب #{{ order.id }} — Target Electro{% endblock %}
+{% block content %}
+<div class="container section" style="max-width:720px;">
+  <h1 class="section-title">طلب رقم #{{ order.id }}</h1>
+  <p class="muted">احتفظ برقم الطلب هذا لمتابعة حالته لاحقاً.</p>
+
+  <div class="status-track">
+    {% for s in ORDER_STATUSES %}
+      {% if s != 'ملغي' %}
+        <span class="status-pill {{ 'done' if ORDER_STATUSES.index(s) <= ORDER_STATUSES.index(order.status) and order.status != 'ملغي' }} {{ 'cancelled' if order.status=='ملغي' }}">{{ s }}</span>
+      {% endif %}
+    {% endfor %}
+    {% if order.status == 'ملغي' %}
+      <span class="status-pill cancelled">ملغي</span>
+    {% endif %}
+  </div>
+
+  <div class="admin-panel">
+    <h3 style="margin-top:0;">تفاصيل الطلب</h3>
+    {% for item in order.items %}
+      <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;">
+        <span>{{ item.product_name }} × {{ item.qty }}</span>
+        <span>{{ (item.price * item.qty)|iqd }}</span>
+      </div>
+    {% endfor %}
+    <hr style="border:none;border-top:1px solid var(--line);margin:10px 0;">
+    <div style="display:flex;justify-content:space-between;font-weight:800;">
+      <span>الإجمالي</span><span>{{ order.total|iqd }}</span>
+    </div>
+  </div>
+
+  <div class="admin-panel">
+    <h3 style="margin-top:0;">عنوان التوصيل</h3>
+    <p>{{ order.customer_name }} — {{ order.phone }}</p>
+    <p>{{ order.governorate }}{% if order.city %}, {{ order.city }}{% endif %}{% if order.area %}, {{ order.area }}{% endif %}</p>
+    <p>{{ order.address }}</p>
+  </div>
+</div>
+{% endblock %}

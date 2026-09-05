@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}البحث — Target Electro{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="listing">
+
+    <aside class="filters">
+      <h4>الفئة</h4>
+      <div class="fgroup">
+        <label><a href="{{ url_for('products') }}">كل الفئات</a></label>
+        {% for c in categories %}
+          <label>
+            <a href="{{ url_for('products', category=c.slug) }}" style="{{ 'font-weight:800;color:#1a1a1a' if category and category.id==c.id }}">
+              {{ c.name_ar }}
+            </a>
+          </label>
+        {% endfor %}
+      </div>
+
+      {% if types %}
+      <h4>النوع</h4>
+      <div class="fgroup">
+        {% for t in types %}
+          <label>
+            <a href="{{ url_for('products', category=category.slug, type=t.slug) }}" style="{{ 'font-weight:800;color:#1a1a1a' if ptype and ptype.id==t.id }}">
+              {{ t.name_ar }}
+            </a>
+          </label>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="get">
+        {% if category %}<input type="hidden" name="category" value="{{ category.slug }}">{% endif %}
+        {% if ptype %}<input type="hidden" name="type" value="{{ ptype.slug }}">{% endif %}
+        {% if keyword %}<input type="hidden" name="q" value="{{ keyword }}">{% endif %}
+
+        <h4>العلامة التجارية</h4>
+        <div class="fgroup">
+          <select name="brand">
+            <option value="">الكل</option>
+            {% for b in brands %}
+              <option value="{{ b.id }}" {{ 'selected' if request.args.get('brand', type=int)==b.id }}>{{ b.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <h4>السعر</h4>
+        <div class="fgroup">
+          <input type="number" name="min_price" placeholder="من" value="{{ request.args.get('min_price','') }}">
+          <input type="number" name="max_price" placeholder="إلى" value="{{ request.args.get('max_price','') }}" style="margin-top:6px;">
+        </div>
+
+        <button type="submit" class="btn btn-outline btn-block btn-sm">تطبيق الفلاتر</button>
+      </form>
+    </aside>
+
+    <div>
+      <div class="listing-toolbar">
+        <form method="get" style="display:flex;gap:8px;">
+          {% if category %}<input type="hidden" name="category" value="{{ category.slug }}">{% endif %}
+          <input type="text" name="q" class="search-box" placeholder="ابحث عن منتج..." value="{{ keyword }}">
+          <button class="btn btn-sm" type="submit">بحث</button>
+        </form>
+
+        <form method="get">
+          {% if category %}<input type="hidden" name="category" value="{{ category.slug }}">{% endif %}
+          {% if keyword %}<input type="hidden" name="q" value="{{ keyword }}">{% endif %}
+          <select name="sort" onchange="this.form.submit()">
+            <option value="newest" {{ 'selected' if sort=='newest' }}>الأحدث</option>
+            <option value="price_asc" {{ 'selected' if sort=='price_asc' }}>السعر: من الأقل للأعلى</option>
+            <option value="price_desc" {{ 'selected' if sort=='price_desc' }}>السعر: من الأعلى للأقل</option>
+          </select>
+        </form>
+      </div>
+
+      {% if products %}
+        <div class="grid">
+          {% for p in products %}{% include "_product_card.html" %}{% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">لا توجد منتجات مطابقة</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

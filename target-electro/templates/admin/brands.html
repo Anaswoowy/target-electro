@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% block title %}العلامات التجارية{% endblock %}
+{% block admin_content %}
+<div class="admin-topbar"><h1 class="section-title">العلامات التجارية</h1></div>
+<div class="admin-panel">
+  <h3 style="margin-top:0">إضافة علامة تجارية</h3>
+  <form method="post" enctype="multipart/form-data" style="display:grid;gap:10px;">
+    <input type="hidden" name="action" value="add">
+    <input type="text" name="name" placeholder="اسم العلامة التجارية" required>
+    <input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+    <div class="brand-category-checks">{% for c in categories %}<label><input type="checkbox" name="category_ids" value="{{ c.id }}"> {{ c.name_ar }}</label>{% endfor %}</div>
+    <button class="btn btn-red" type="submit">إضافة العلامة</button>
+  </form>
+</div>
+{% if brands %}
+<table class="admin-table"><thead><tr><th>العلامة</th><th>الفئات</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>
+{% for b in brands %}<tr>
+<td><form method="post" enctype="multipart/form-data" class="brand-edit"><input type="hidden" name="action" value="update"><input type="hidden" name="brand_id" value="{{ b.id }}"><div class="brand-row"><div class="brand-logo-box">{% if b.logo %}<img src="{{ b.logo }}" alt="">{% else %}<span>{{ b.name[:2] }}</span>{% endif %}</div><input name="name" value="{{ b.name }}"></div><input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml"><div class="brand-category-checks">{% for c in categories %}<label><input type="checkbox" name="category_ids" value="{{ c.id }}" {{ 'checked' if c.id in brand_cats[b.id] }}> {{ c.name_ar }}</label>{% endfor %}</div><button class="btn btn-sm btn-outline" type="submit">حفظ التعديل</button></form></td>
+<td><div class="brand-tags">{% for c in categories if c.id in brand_cats[b.id] %}<span>{{ c.name_ar }}</span>{% endfor %}{% if not brand_cats[b.id] %}<span>كل الفئات</span>{% endif %}</div></td>
+<td>{{ 'مفعّلة' if b.enabled else 'معطّلة' }}</td>
+<td><div style="display:flex;gap:6px"><form method="post"><input type="hidden" name="action" value="toggle"><input type="hidden" name="brand_id" value="{{ b.id }}"><button class="btn btn-sm btn-outline" type="submit">{{ 'إخفاء' if b.enabled else 'تفعيل' }}</button></form><form method="post" onsubmit="return confirm('حذف العلامة التجارية؟');"><input type="hidden" name="action" value="delete"><input type="hidden" name="brand_id" value="{{ b.id }}"><button class="btn btn-sm btn-danger" type="submit">حذف</button></form></div></td>
+</tr>{% endfor %}
+</tbody></table>{% else %}<div class="empty-state">لا توجد علامات تجارية</div>{% endif %}
+{% endblock %}
